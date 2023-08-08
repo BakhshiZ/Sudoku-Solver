@@ -15,15 +15,12 @@ void Board::set_value_b(int row, int col, int newValue) {
     grid[row][col].set_value(newValue);
 }
 
-// implementation of setter from class Board with 2 ints and a tile as parameter (to use in default constructor)
+
+// implementation of setter from class Board
 void Board::set_value_b(int row, int col, Tile &tile) {
     grid[row][col] = tile;
 }
 
-// implementation of getter from class Board
-int Board::get_value_b(int row, int col) {
-    return grid[row][col].get_value();
-}
 
 /* function that iterates through the whole board tile by tile and if there is a 0, it means the board is not solved and
  * returns false. If there is no 0 in the file, it returns true
@@ -39,6 +36,7 @@ bool Board::is_solved() {
 
     return true;
 }
+
 
 // function to print the board. The if statements included are just for purposes of pretty printing
 void Board::print_board() {
@@ -61,7 +59,12 @@ void Board::print_board() {
     }
 }
 
+
 std::vector<int> Board::all_possible_values(int row, int col) {
+    if (grid[row][col].get_value() != 0) {
+        return {};
+    }
+
     std::vector<int> all_values_vector = {1, 2, 3, 4, 5, 6, 7, 8, 9};
     // rounding the parameters row and col down to their nearest multiples of 3
     int rowStart = 3 * (row / 3);
@@ -72,11 +75,11 @@ std::vector<int> Board::all_possible_values(int row, int col) {
         for (int colCounter = colStart; colCounter < colStart + 3; colCounter++) {
             if (grid[rowCounter][colCounter].get_value() != 0) {
                 auto it = std::find(all_values_vector.begin(), all_values_vector.end(),
-                                                                          grid[rowCounter][colCounter].get_value());
+                                    grid[rowCounter][colCounter].get_value());
                 all_values_vector.erase(it);
-                }
             }
         }
+    }
 
     // repeated logic inside loop, but this time it checks every value in the column and removes it
     for (int rowCounter = 0; rowCounter < 9; rowCounter++) {
@@ -112,26 +115,6 @@ std::vector<int> Board::all_possible_values(int row, int col) {
 }
 
 
-/* function to check if number entered by user is valid by comparing value they wish to add against all the values the
- * tile can hold
- */
-bool Board::isValid(int row, int col, int value) {
-    // vector to store all values that the tile can hold
-    std::vector<int> all_values_vector = this->all_possible_values(row, col);
-
-    // iterator for going through all_values_vector
-    std::vector<int>::iterator it = all_values_vector.begin();
-
-    // checking if the value they wish to add is present in all_values_vector. If it is, return true, otherwise false
-    for (it; it != all_values_vector.end(); it++) {
-        if (*it == value) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
 /* function that checks all values that all tiles in a grid can hold and checks if any value only occurs once in the
  * grid. If it does, returns index position of that tile along with the value. It also checks if a tile can only have 1
  * value and, if it can, it also returns that
@@ -162,17 +145,15 @@ std::vector<std::tuple<ROW, COL, VAL>> Board::only_comes_once(int row, int col) 
     // iterating through the grid and pushing all values into the vector supposed to store them
     for (int rowCounter = rowStart; rowCounter < rowStart + 3; rowCounter++) {
         for (int colCounter = colStart; colCounter < colStart + 3; colCounter++) {
-            if (grid[rowCounter][colCounter].get_value() == 0) {
-                allValuesOfTile = this->all_possible_values(rowCounter, colCounter);
-                workingTuple = std::make_tuple(allValuesOfTile, rowCounter, colCounter);
-                allValuesInGrid.push_back(workingTuple);
+            allValuesOfTile = this->all_possible_values(rowCounter, colCounter);
+            workingTuple = std::make_tuple(allValuesOfTile, rowCounter, colCounter);
+            allValuesInGrid.push_back(workingTuple);
 
-                // if there is only 1 value that can be put in the tile, immediately add it to a tuple and put in
-                // vector we are meant to return
-                if (allValuesOfTile.size() == 1) {
-                    returningTuple = std::make_tuple(rowCounter, colCounter, allValuesOfTile[0]);
-                    returningVector.push_back(returningTuple);
-                }
+            // if there is only 1 value that can be put in the tile, immediately add it to a tuple and put in
+            // vector we are meant to return
+            if (allValuesOfTile.size() == 1) {
+                returningTuple = std::make_tuple(rowCounter, colCounter, allValuesOfTile[0]);
+                returningVector.push_back(returningTuple);
             }
         }
     }
@@ -186,7 +167,7 @@ std::vector<std::tuple<ROW, COL, VAL>> Board::only_comes_once(int row, int col) 
      */
     for (tupleIt; tupleIt != allValuesInGrid.end(); tupleIt++) {
         for (std::vector<int>::iterator vectorIt = std::get<0>(*tupleIt).begin(); vectorIt !=
-                                                                           std::get<0>(*tupleIt).end(); vectorIt++) {
+                                                                                  std::get<0>(*tupleIt).end(); vectorIt++) {
             numberCounter[(*vectorIt - 1)]++;
         }
     }
@@ -197,8 +178,8 @@ std::vector<std::tuple<ROW, COL, VAL>> Board::only_comes_once(int row, int col) 
         if (numberCounter[i] == 1) {
             for (tupleIt = allValuesInGrid.begin(); tupleIt != allValuesInGrid.end(); tupleIt++) {
                 for (std::vector<int>::iterator vectorIt = std::get<0>(*tupleIt).begin();
-                                                    vectorIt != std::get<0>(*tupleIt).end();
-                                                        vectorIt++) {
+                     vectorIt != std::get<0>(*tupleIt).end();
+                     vectorIt++) {
                     /* if the number inside the vector = 1, index position (i) is 0 inside numberCounter; if number = 2,
                      * index inside numberCounter is 1, so we compare with i + 1
                      */
@@ -207,7 +188,7 @@ std::vector<std::tuple<ROW, COL, VAL>> Board::only_comes_once(int row, int col) 
                         returningTuple = std::make_tuple(std::get<1>(*tupleIt),  // the row index of tile
                                                          std::get<2>(*tupleIt),  // the column index of tile
                                                          *vectorIt                  // the actual value of tile
-                                                         );
+                        );
                         returningVector.push_back(returningTuple);
                     }
                 }
@@ -216,6 +197,7 @@ std::vector<std::tuple<ROW, COL, VAL>> Board::only_comes_once(int row, int col) 
     }
     return returningVector;
 }
+
 
 Board::Board() {
     for (int row = 0; row < 9; row++) {
