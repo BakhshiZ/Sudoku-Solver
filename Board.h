@@ -9,8 +9,13 @@
 
 
 using ROW = int;
+using ROW1 = int;
+using ROW2 = int;
 using COL = int;
+using COL1 = int;
+using COL2 = int;
 using VAL = int;
+using VALS = std::vector<int>;
 
 class Board {
 private:
@@ -22,9 +27,6 @@ public:
 
     // overloading function set_value_b to accept Tiles as an input to use Tile() in the default constructor
     void set_value_b(int row, int col, Tile& tile);
-
-    // getter to return value of tile at index (row, col) [named slightly differently]
-    int get_value_b(int row, int col);
 
     // boolean function to check if board is solved or not
     bool is_solved();
@@ -39,7 +41,7 @@ public:
      * 1, and it returns the index of the tile as well as the value it holds
      */
     std::vector<std::tuple<ROW, COL, VAL>> only_comes_once(int row, int col);
-
+    
     // Board's default constructor
     Board();
 };
